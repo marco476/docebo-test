@@ -21,7 +21,7 @@ const DELAY: number = 2000;
 
 // Fake fetch cards function
 function fetchCards(): Promise<ICarouselCard[]> {
-  let cards: ICarouselCard[] = [];
+  const cards: ICarouselCard[] = [];
 
   for (let i = 0; i < CHUNK_SIZE; i++) {
     // Get a random card by fake cards

@@ -4,5 +4,12 @@
         "plugin:jest/recommended",
         "plugin:jest/style",
         "prettier"
-      ]
+    ],
+    "parserOptions": {
+      "project": "./tsconfig.json"
+    },
+    "env": {
+      "jest": true,
+      "browser": true
+    }
 }
