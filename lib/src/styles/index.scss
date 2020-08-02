@@ -1,0 +1,181 @@
+@import './colors.scss';
+@import './typography.scss';
+@import './spacing.scss';
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+.hide {
+  display: none !important;
+}
+
+.carousel {
+}
+
+// Header
+.carouselHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-items: flex-start;
+  align-items: center;
+  margin: $headerMargin;
+}
+
+.carouselHeader__image {
+  background-color: $headerImage;
+  color: $white;
+  padding: $headerImagePadding;
+  margin: $headerImageMargin;
+  border-radius: 4px;
+}
+
+.carouselHeaderContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.carouselHeaderContent__title {
+  color: $headerTitle;
+  font-size: $headerTitleSize;
+}
+
+.carouselHeaderContent__subtitle {
+  color: $headerSubtitle;
+  font-size: $headerSubtitleSize;
+  margin-top: $headerContentSubtitleMargin;
+}
+
+// Body
+.carouselBody {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  position: relative;
+}
+
+.carouselBody__goAhead,
+.carouselBody__goPrev {
+  position: absolute;
+  top: 0;
+  width: 40px;
+  height: 100%;
+  background-color: $arrowsBg;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: $white;
+  font-size: $arrowsSize;
+  cursor: pointer;
+}
+
+.carouselBody__goAhead {
+  right: $arrowsAheadRight;
+}
+
+.carouselBody__goPrev {
+  left: $arrowsPrevLeft;
+}
+
+// Card
+.carouselCard {
+  display: flex;
+  flex-direction: column;
+  width: $cardWidth;
+  background-color: $cardBg;
+  box-shadow: 1px 1px 8px 1px $cardShadow;
+  height: $cardHeight;
+  position: relative;
+}
+
+.carouselBody .carouselCard:not(:first-child) {
+  margin: $cardNotFirstMargin;
+}
+
+// Card image
+.carouselCard__image {
+  height: 120px;
+  background-color: $cardLoadingBg;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+// Hide background image when card is in loading state
+.carousel--loading .carouselCard .carouselCard__image {
+  background-image: none !important;
+}
+
+// Card body
+.carouselCardBody {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: $cardBodyPadding;
+}
+
+.carousel--loading .carouselCard .carouselCardBody {
+  justify-content: space-between;
+}
+
+.carouselCardBody__title {
+  font-size: $cardTitleSize;
+  color: $cardTitle;
+  line-height: 22px;
+}
+
+.carouselCardBody__subtitle {
+  font-size: $cardSubtitleSize;
+  color: $cardSubtitle;
+  margin: $cardBodySubtitleMargin;
+}
+
+// Hide title and subtitle when card is in loading state
+.carousel--loading .carouselCard .carouselCardBody__title,
+.carousel--loading .carouselCard .carouselCardBody__subtitle {
+  display: none;
+}
+
+.carouselCardBody__topLoading,
+.carouselCardBody__bottomLoading {
+  display: none;
+}
+
+.carouselCardBody__topLoading {
+  flex-direction: column;
+}
+
+.carouselCardBody__bottomLoading {
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.carouselCardBody__topLoading div,
+.carouselCardBody__bottomLoading div {
+  background-color: $cardLoadingBg;
+}
+
+.carouselCardBody__topLoading div {
+  height: 10px;
+}
+
+.carouselCardBody__topLoading div:first-child {
+  width: 100%;
+}
+
+.carouselCardBody__topLoading div:last-child {
+  width: 80%;
+  margin: $cardBodyTopLoadingLastChildMargin;
+}
+
+.carouselCardBody__bottomLoading div {
+  height: 8px;
+  flex-basis: 45%;
+  margin: $cardBodyBottomLoadingDivsMargin;
+}
+
+// Show top and bottom loading component when card is in loading state
+.carousel--loading .carouselCard .carouselCardBody__topLoading,
+.carousel--loading .carouselCard .carouselCardBody__bottomLoading {
+  display: flex;
+}
