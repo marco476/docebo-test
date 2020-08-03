@@ -75,7 +75,11 @@ const options4: ICarouselOptions = {
   fetchCards
 };
 
-new window.Carousel(options1);
-new window.Carousel(options2);
-new window.Carousel(options3);
-new window.Carousel(options4);
+const carousels = [
+  new window.Carousel(options1),
+  new window.Carousel(options2),
+  new window.Carousel(options3),
+  new window.Carousel(options4)
+];
+
+console.log('Hello! Take a look here:', carousels);

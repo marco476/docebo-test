@@ -1,6 +1,7 @@
 {
     "**/*.{js,ts}": [
         "npm run prettier",
+        "npm run build:prod",
         "git add"
     ],
 }

@@ -8,6 +8,10 @@
     "parserOptions": {
       "project": "./tsconfig.json"
     },
+    "rules": {
+      "no-plusplus": 0,
+      "@typescript-eslint/camelcase": 0
+    },
     "env": {
       "jest": true,
       "browser": true

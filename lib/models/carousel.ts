@@ -13,6 +13,8 @@ export interface ICarousel {
   maxPage: number;
   cards: ICarouselCard[][];
   fetchCards: IFetchCards;
+  xDown: number;
+  yDown: number;
 }
 
 // Interface for header component

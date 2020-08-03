@@ -93,17 +93,46 @@ p {
 }
 
 // Card image
-.carouselCard__image {
+.carouselCardImage {
   height: 120px;
   background-color: $cardLoadingBg;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.carouselCardImage__type {
+  padding: $cardTypePadding;
+  color: $cardType;
+  font-size: $cardTypeSize;
+  background-color: $cardTypeBg;
+  text-transform: uppercase;
+}
+
+.carouselCardImage__duration {
+  padding: $cardDurationPadding;
+  color: $cardDuration;
+  font-size: $cardDurationSize;
+  background-color: $cardDurationBg;
+}
+
+.carouselCardImage__type,
+.carouselCardImage__duration {
+  font-weight: bold;
 }
 
 // Hide background image when card is in loading state
-.carousel--loading .carouselCard .carouselCard__image {
+.carousel--loading .carouselCard .carouselCardImage {
   background-image: none !important;
+}
+
+// Hide image elements when card is in loading state
+.carousel--loading .carouselCard .carouselCardImage__type,
+.carousel--loading .carouselCard .carouselCardImage__duration {
+  display: none;
 }
 
 // Card body

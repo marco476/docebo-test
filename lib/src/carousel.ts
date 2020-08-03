@@ -5,15 +5,26 @@ import {
   IFetchCards,
   CHUNK_SIZE
 } from '../models/carousel';
-import { ICarouselCard } from '../models/cards';
+import { ICarouselCard, CARD_TYPES } from '../models/cards';
+
+import { CARD_TYPES_LABELS } from '../utils/cards';
+import { getLabelDuration } from '../utils/duration';
 
 // Main Class - Carousel library
 class Carousel implements ICarousel {
   container: HTMLElement = undefined;
+
   page: number = 0;
+
   maxPage: number = 0;
+
   cards: ICarouselCard[][] = [];
+
   fetchCards: IFetchCards = undefined;
+
+  xDown: number = null;
+
+  yDown: number = null;
 
   /**
    * Class constructor
@@ -28,7 +39,7 @@ class Carousel implements ICarousel {
     fetchCards
   }: ICarouselOptions) {
     if (!container) {
-      throw "You can't create a Carousel without a container!";
+      throw new Error("You can't create a Carousel without a container!");
     }
 
     // Get container node: will be used by library for create the Carousel
@@ -36,7 +47,7 @@ class Carousel implements ICarousel {
     containerNode.className = 'carousel';
 
     // Create Carouselheader
-    const headerNode: HTMLDivElement | undefined = this.createHeader({
+    const headerNode: HTMLDivElement | undefined = Carousel.createHeader({
       title,
       subtitle,
       icon
@@ -53,7 +64,7 @@ class Carousel implements ICarousel {
     containerNode.appendChild(bodyNode);
 
     this.container = containerNode;
-    this.maxPage = maxPage;
+    this.maxPage = maxPage ?? 0;
 
     // Save the fetch cards function
     this.fetchCards = fetchCards;
@@ -64,6 +75,8 @@ class Carousel implements ICarousel {
 
   /**
    * Utility method fo create Carousel Header
+   * If a class method does not use this, it can convert a static function
+   * {@link https://eslint.org/docs/rules/class-methods-use-this}
    *
    * @param {ICarouselHeader} params
    * @param {string} params.title
@@ -71,7 +84,7 @@ class Carousel implements ICarousel {
    * @param {string} params.icon
    * @returns {HTMLDivElement|undefined}
    */
-  createHeader({
+  static createHeader({
     title,
     subtitle,
     icon
@@ -141,7 +154,7 @@ class Carousel implements ICarousel {
 
     // Create CHUNK_SIZE cards to append in the body
     for (let i = 0; i < CHUNK_SIZE; i++) {
-      const cardNode: HTMLDivElement = this.createCard();
+      const cardNode: HTMLDivElement = Carousel.createCard();
       bodyNode.appendChild(cardNode);
     }
 
@@ -166,17 +179,28 @@ class Carousel implements ICarousel {
     bodyNode.appendChild(goAheadNode);
     bodyNode.appendChild(goPrevNode);
 
+    bodyNode.addEventListener('touchstart', (evt: TouchEvent) =>
+      this.handleTouchStart(evt)
+    );
+    bodyNode.addEventListener('touchmove', (evt: TouchEvent) =>
+      this.handleTouchMove(evt)
+    );
+
     return bodyNode;
   }
 
   /**
    * Utility method for create a card
+   * If a class method does not use this, it can convert a static function
+   * {@link https://eslint.org/docs/rules/class-methods-use-this}
    *
    * @returns {HTMLDivElement}
    */
-  createCard(): HTMLDivElement {
+  static createCard(): HTMLDivElement {
     const cardNode: HTMLDivElement = document.createElement('div');
     const imageNode: HTMLDivElement = document.createElement('div');
+    const typeNode: HTMLDivElement = document.createElement('div');
+    const durationNode: HTMLDivElement = document.createElement('div');
 
     const bodyNode: HTMLDivElement = document.createElement('div');
     const titleNode: HTMLDivElement = document.createElement('div');
@@ -202,7 +226,9 @@ class Carousel implements ICarousel {
     );
 
     cardNode.className = 'carouselCard';
-    imageNode.className = 'carouselCard__image';
+    imageNode.className = 'carouselCardImage';
+    typeNode.className = 'carouselCardImage__type';
+    durationNode.className = 'carouselCardImage__duration';
 
     bodyNode.className = 'carouselCardBody';
     titleNode.className = 'carouselCardBody__title';
@@ -216,6 +242,9 @@ class Carousel implements ICarousel {
     bottomLoadingNode.appendChild(firstDivInnerBottomLoadingNode);
     bottomLoadingNode.appendChild(secondDivInnerBottomLoadingNode);
     bottomLoadingNode.appendChild(thirdDivInnerBottomLoadingNode);
+
+    imageNode.appendChild(typeNode);
+    imageNode.appendChild(durationNode);
 
     bodyNode.appendChild(titleNode);
     bodyNode.appendChild(subTitleNode);
@@ -272,23 +301,27 @@ class Carousel implements ICarousel {
 
   /**
    * Utility method for get image node by its card
+   * If a class method does not use this, it can convert a static function
+   * {@link https://eslint.org/docs/rules/class-methods-use-this}
    *
    * @param {HTMLDivElement} cardNode
    * @returns {HTMLDivElement}
    */
-  getCardImageNode(cardNode: HTMLDivElement): HTMLDivElement {
+  static getCardImageNode(cardNode: HTMLDivElement): HTMLDivElement {
     return cardNode.getElementsByClassName(
-      'carouselCard__image'
+      'carouselCardImage'
     )[0] as HTMLDivElement;
   }
 
   /**
    * Utility method for get title node by its card
+   * If a class method does not use this, it can convert a static function
+   * {@link https://eslint.org/docs/rules/class-methods-use-this}
    *
    * @param {HTMLDivElement} cardNode
    * @returns {HTMLDivElement}
    */
-  getCardTitleNode(cardNode: HTMLDivElement): HTMLDivElement {
+  static getCardTitleNode(cardNode: HTMLDivElement): HTMLDivElement {
     return cardNode.getElementsByClassName(
       'carouselCardBody__title'
     )[0] as HTMLDivElement;
@@ -296,11 +329,13 @@ class Carousel implements ICarousel {
 
   /**
    * Utility method for get subtitle node by its card
+   * If a class method does not use this, it can convert a static function
+   * {@link https://eslint.org/docs/rules/class-methods-use-this}
    *
    * @param {HTMLDivElement} cardNode
    * @returns {HTMLDivElement}
    */
-  getCardSubtitleNode(cardNode: HTMLDivElement): HTMLDivElement {
+  static getCardSubtitleNode(cardNode: HTMLDivElement): HTMLDivElement {
     return cardNode.getElementsByClassName(
       'carouselCardBody__subtitle'
     )[0] as HTMLDivElement;
@@ -313,6 +348,10 @@ class Carousel implements ICarousel {
    * for get new data
    */
   goAhead() {
+    if (this.page >= this.maxPage - 1) {
+      return;
+    }
+
     ++this.page;
 
     const goAheadNode = this.getArrowAheadNode();
@@ -334,6 +373,10 @@ class Carousel implements ICarousel {
    * for get new data
    */
   goBack() {
+    if (this.page === 0) {
+      return;
+    }
+
     --this.page;
 
     const goAheadNode = this.getArrowAheadNode();
@@ -356,15 +399,31 @@ class Carousel implements ICarousel {
    * @param {number} index
    */
   setCard(card: ICarouselCard, index: number) {
-    const { image, title, subtitle }: ICarouselCard = card;
+    const { image, type, duration, title, subtitle }: ICarouselCard = card;
     const cardNode: HTMLDivElement = this.getCardNode(index);
 
-    const imageNode: HTMLDivElement = this.getCardImageNode(cardNode);
-    const titleNode: HTMLDivElement = this.getCardTitleNode(cardNode);
-    const subTitleNode: HTMLDivElement = this.getCardSubtitleNode(cardNode);
+    const imageNode: HTMLDivElement = Carousel.getCardImageNode(cardNode);
+    const titleNode: HTMLDivElement = Carousel.getCardTitleNode(cardNode);
+    const subTitleNode: HTMLDivElement = Carousel.getCardSubtitleNode(cardNode);
 
     if (image) {
       imageNode.style.backgroundImage = `url(${image})`;
+    }
+
+    if (type) {
+      const parsedType = type as CARD_TYPES;
+      const label = CARD_TYPES_LABELS[parsedType] ?? parsedType;
+
+      imageNode.getElementsByClassName(
+        'carouselCardImage__type'
+      )[0].textContent = label;
+    }
+
+    if (duration) {
+      const label = getLabelDuration(duration);
+      imageNode.getElementsByClassName(
+        'carouselCardImage__duration'
+      )[0].textContent = label;
     }
 
     if (title) {
@@ -423,6 +482,56 @@ class Carousel implements ICarousel {
 
       this.container.classList.remove('carousel--loading');
     });
+  }
+
+  /**
+   * The method handle the touch start event
+   *
+   * @param {TouchEvent} evt
+   */
+  handleTouchStart(evt: TouchEvent) {
+    this.xDown = evt.touches[0].clientX;
+    this.yDown = evt.touches[0].clientY;
+  }
+
+  /**
+   * The method handle touch move event.
+   * With some differences, i can know if:
+   *
+   * - You swipe on right
+   * - You swipe on left
+   * - You swipe up
+   * - You swipe down
+   *
+   * @param {TouchEvent} evt
+   */
+  handleTouchMove(evt: TouchEvent) {
+    if (!this.xDown || !this.yDown) {
+      return;
+    }
+
+    const xUp = evt.touches[0].clientX;
+    const yUp = evt.touches[0].clientY;
+    const xDiff = this.xDown - xUp;
+    const yDiff = this.yDown - yUp;
+
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+      if (xDiff > 0) {
+        // Swipe on left
+        this.goAhead();
+      } else {
+        // Swipe on right
+        this.goBack();
+      }
+    } else if (yDiff > 0) {
+      // Swipe up
+    } else {
+      // Swipe down
+    }
+
+    // Reset values
+    this.xDown = null;
+    this.yDown = null;
   }
 }
 
